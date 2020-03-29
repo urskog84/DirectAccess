@@ -1,0 +1,31 @@
+---
+- name: Test win_ping module
+  win_ping:
+
+- name: Set the unicode language to English Great Britain, reboot if required
+  win_region:
+    unicode_language: sv
+    format: sv
+  register: result    
+
+- win_reboot:
+  when: result.restart_required
+
+- name: Create directory for Pester tests
+  win_copy:
+    src: files/Pester/
+    dest: C:\Pester
+
+- name: install module Pester 
+  win_psmodule:
+    name: pester
+    state: present
+  
+- name: Run the pester tests
+  win_pester:
+    path: C:\Pester
+  register: pester_result
+
+- name: debug
+  debug:
+    msg: "{{ pester_result | to_nice_json }}"
